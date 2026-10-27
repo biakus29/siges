@@ -1,0 +1,23 @@
+{
+  "name": "aurel-school-siges",
+  "version": "8.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Aurel School SIGES — interface React (servie par l'API PHP + MySQL)",
+  "scripts": {
+    "dev": "vite",
+    "serveur": "C:\\xampp\\php\\php.exe -S 127.0.0.1:4000 router.php",
+    "build": "vite build",
+    "build:php": "vite build && node scripts/deploy-php.mjs",
+    "preview": "vite preview",
+    "test": "node tests/core.test.mjs"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.3.4",
+    "vite": "5.4.11"
+  }
+}

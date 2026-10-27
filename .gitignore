@@ -1,0 +1,21 @@
+# Configuration locale et secrets générés par l'installateur
+config.php
+.env
+.env.*
+!.env.example
+
+# Exports, sauvegardes et données d'exécution
+*.sql
+*.log
+*.bak
+*.backup
+*.zip
+*.7z
+*.rar
+data/*
+!data/.htaccess
+!data/index.html
+
+# Dépendances et sorties de compilation
+node_modules/
+dist/

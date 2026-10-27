@@ -1,0 +1,60 @@
+# ================================================================
+# Aurel School SIGES — configuration Apache (XAMPP, WAMP, Laragon,
+# hébergements mutualisés). Nécessite AllowOverride All (défaut XAMPP).
+# ================================================================
+Options -Indexes
+
+# En-têtes de sécurité (déploiement internet)
+<IfModule mod_headers.c>
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"
+Header always set Referrer-Policy "no-referrer"
+Header always set X-Robots-Tag "noindex, nofollow"
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# Transmission de l'en-tête Authorization (CGI/FastCGI)
+<IfModule mod_setenvif.c>
+SetEnvIfNoCase ^Authorization$ "(.+)" HTTP_AUTHORIZATION=$1
+</IfModule>
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+  # API → PHP
+RewriteRule ^api(/|$) api/index.php [L]
+
+  # Fichiers et dossiers sensibles — accès interdit (insensible à la casse)
+RewriteRule (^|/)\. - [F,L]
+RewriteRule ^(data|seed|src|tests|docs|scripts|node_modules|dist)(/|$) - [F,NC,L]
+RewriteRule ^(config\.php|router\.php)$ - [F,NC,L]
+RewriteRule \.(sql|zip|bat|sh|cmd|mjs|cjs|txt|ini|bak|old|tmp|docx|pdf)$ - [F,NC,L]
+
+  # Application monopage : tout le reste sert l'interface
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.html [L]
+</IfModule>
+
+# Ceinture de sécurité : jamais de base, graine ni fichiers internes
+# même si mod_rewrite est inactif (v5.6 : + json, config, router)
+<FilesMatch "(?i)\.(db|db-wal|db-shm|log|md|lock|json|sql|zip|bat|sh|txt|ini|bak)$|^\.|^(config\.php|router\.php)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Taille maximale des échanges (base complète + photos élèves)
+<IfModule mod_php.c>
+  php_value post_max_size 24M
+  php_value upload_max_filesize 24M
+</IfModule>
+<IfModule mod_php7.c>
+  php_value post_max_size 24M
+  php_value upload_max_filesize 24M
+</IfModule>
