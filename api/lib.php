@@ -184,13 +184,22 @@ class AurelMysqlStore {
   public function setDemo($estDemo){ $this->setMeta('demo', $estDemo ? '1' : '0'); }
 }
 
+/* Options PDO communes. v6.7 : serveur MySQL distant — échec rapide plutôt
+   que blocage. MySQL hébergé exigeant TLS (Aiven…) : la variable
+   d'environnement MYSQL_SSL_CA indique le certificat CA du fournisseur. */
+function aurel_mysql_options(){
+  $o = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 10);
+  $ca = getenv('MYSQL_SSL_CA');
+  if ($ca && is_file($ca)) $o[PDO::MYSQL_ATTR_SSL_CA] = $ca;
+  return $o;
+}
+
 /* Connexion MySQL selon la configuration (throw si inaccessible) */
 function aurel_mysql_pdo($m = null){
   $cfg = aurel_config();
   if (!is_array($m)) $m = $cfg['mysql'];
   $dsn = 'mysql:host=' . $m['host'] . ';port=' . (int)$m['port'] . ';dbname=' . $m['base'] . ';charset=utf8mb4';
-  $pdo = new PDO($dsn, $m['user'], $m['pass'], array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 10)); /* v6.7 : serveur MySQL distant — échec rapide plutôt que blocage */
-  return $pdo;
+  return new PDO($dsn, $m['user'], $m['pass'], aurel_mysql_options());
 }
 
 /* ---------- Magasin partagé (singleton) ----------

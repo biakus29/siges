@@ -267,7 +267,7 @@ if (!$erreur && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])
       if (!empty($_POST['creer_base'])){
         try {
           $srv = new PDO('mysql:host=' . $mysql['host'] . ';port=' . $mysql['port'] . ';charset=utf8mb4',
-            $mysql['user'], $mysql['pass'], array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 10));
+            $mysql['user'], $mysql['pass'], aurel_mysql_options());
           $nm = str_replace('`', '', $mysql['base']);
           $srv->exec('CREATE DATABASE IF NOT EXISTS `' . $nm . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
         } catch (Throwable $e){

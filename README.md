@@ -40,6 +40,32 @@ Si la base MySQL existe déjà, l'installateur reprend ses données. Après une
 mise à jour (`git pull`), rechargez la page avec `Ctrl+F5` pour que le
 navigateur charge la nouvelle interface.
 
+## Hébergement sur Render
+
+Render n'a ni PHP natif ni MySQL : l'application tourne dans un conteneur
+Docker (`Dockerfile`, `render.yaml`) et la base MySQL est hébergée ailleurs,
+par exemple sur Aiven (offre gratuite).
+
+1. **Aiven** : créez un service MySQL gratuit. Notez l'hôte, le port,
+   l'utilisateur (`avnadmin`) et le mot de passe, puis téléchargez le
+   certificat CA (`ca.pem`).
+2. **Render** : *New → Blueprint*, choisissez ce dépôt et renseignez
+   `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER` et `MYSQL_PASSWORD`. Dans le
+   service créé, *Environment → Secret Files* : ajoutez un fichier nommé
+   `ca.pem` avec le contenu du certificat Aiven.
+3. Ouvrez `https://<service>.onrender.com/install.php`, choisissez « Base vide »,
+   saisissez les mêmes accès MySQL (base `aurel_school`, case « Créer la base »
+   cochée) et le compte administrateur.
+4. Dans Render, *Manual Deploy → Deploy latest commit*. À chaque démarrage,
+   `config.php` est désormais recréé depuis les variables d'environnement
+   (`SIGES_SECRET` est généré par Render). Les utilisateurs se reconnectent
+   une seule fois après ce redéploiement.
+
+Limites de l'offre gratuite : le service se met en veille après 15 minutes
+sans visite (environ une minute au réveil), et le dossier `data/` (journal
+d'erreurs, tentatives de connexion) est vidé à chaque déploiement. Les
+données de l'école sont dans MySQL et ne sont pas touchées.
+
 ## Développement local
 
 Dans un premier terminal, démarrez l'API PHP à la racine du dépôt :
