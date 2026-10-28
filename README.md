@@ -6,42 +6,51 @@ React/Vite à une API PHP qui utilise MySQL.
 
 ## Contenu du dépôt
 
-- `siges/` : projet de développement principal (sources React, API PHP,
-  configuration Vite, tests et scripts).
-- `siges/src/` : interface React.
-- `siges/api/` : API PHP.
-- `siges/docs/` : guides utilisateur et d'installation.
-- `install.php` et les scripts `DEMARRER-*` : installation et démarrage selon
-  l'environnement.
-- `LISEZ-MOI.txt` : informations détaillées sur l'application et ses versions.
+La racine du dépôt est directement le dossier de l'application : un clone
+dans `htdocs/` s'installe tel quel.
 
-Les fichiers `index.html` et `assets/` présents à la racine sont également
-utilisés pour la distribution de l'application. Pour développer l'interface,
-travaillez dans `siges/`.
+- `index.html`, `assets/` : interface compilée, servie par PHP/Apache.
+- `api/` : API PHP.
+- `install.php` : assistant d'installation (crée `config.php` et la base).
+- `src/` : sources React de l'interface.
+- `docs/` : guides utilisateur et d'installation.
+- `scripts/`, `tests/` : outils de compilation et tests.
+- Scripts `DEMARRER-*` : démarrage selon l'environnement.
+- `LISEZ-MOI.txt` : informations détaillées sur l'application et ses versions.
 
 ## Prérequis
 
-- Node.js et npm pour développer et compiler l'interface.
-- PHP pour exécuter l'API.
-- MySQL pour stocker les données de l'application.
+- PHP et MySQL (par exemple XAMPP) pour exécuter l'application.
+- Node.js et npm uniquement pour modifier et recompiler l'interface.
 
-Les paramètres de connexion MySQL sont créés par l'installateur dans
-`config.php`. Ne publiez jamais ce fichier : il peut contenir un secret de
-session et des identifiants de base de données.
+## Installation (XAMPP)
+
+```powershell
+cd C:\xampp\htdocs
+git clone https://github.com/biakus29/siges.git
+```
+
+Démarrez Apache et MySQL, puis ouvrez `http://localhost/siges/install.php`.
+
+`config.php` n'est **pas** dans le dépôt, c'est voulu : l'installateur le
+génère avec un secret de session propre à chaque machine et les accès MySQL.
+Ne publiez jamais ce fichier.
+
+Si la base MySQL existe déjà, l'installateur reprend ses données. Après une
+mise à jour (`git pull`), rechargez la page avec `Ctrl+F5` pour que le
+navigateur charge la nouvelle interface.
 
 ## Développement local
 
-Dans un premier terminal, démarrez l'API PHP depuis le dossier `siges/` :
+Dans un premier terminal, démarrez l'API PHP à la racine du dépôt :
 
 ```powershell
-cd siges
 php -S 127.0.0.1:4000 router.php
 ```
 
 Dans un second terminal, installez les dépendances et démarrez Vite :
 
 ```powershell
-cd siges
 npm install
 npm run dev
 ```
@@ -49,13 +58,13 @@ npm run dev
 Ouvrez l'adresse locale affichée par Vite, généralement `http://localhost:5173`.
 Le serveur Vite relaie les appels `/api` vers l'API PHP sur le port `4000`.
 
-Commandes disponibles dans `siges/` :
+Commandes disponibles :
 
 | Commande | Utilité |
 | --- | --- |
 | `npm run dev` | Démarre le serveur de développement Vite. |
 | `npm test` | Lance les tests du projet. |
-| `npm run build` | Compile l'interface dans `siges/dist/`. |
+| `npm run build` | Compile l'interface dans `dist/`. |
 | `npm run build:php` | Compile puis copie l'interface compilée dans les fichiers servis par PHP. |
 
 Après compilation, `npm run build:php` met à jour des fichiers de distribution.
@@ -144,7 +153,8 @@ nettoyage de l'historique du dépôt avec les personnes qui y contribuent.
 
 ## Documentation et tests
 
-Consultez `LISEZ-MOI.txt` et les documents de `siges/docs/` pour les procédures
-d'installation et d'utilisation. Avant une contribution, lancez `npm test`
-depuis `siges/` et, pour une modification de l'interface, vérifiez également
-`npm run build`.
+Consultez `LISEZ-MOI.txt` et les documents de `docs/` pour les procédures
+d'installation et d'utilisation. Avant une contribution, lancez `npm test` et,
+pour une modification de l'interface, lancez `npm run build:php` puis validez
+`index.html` et les nouveaux fichiers de `assets/` : sans cela, les autres
+postes ne voient pas la modification.

@@ -14,7 +14,7 @@ require __DIR__ . '/api/lib.php';
 header('Content-Type: text/html; charset=utf-8');
 
 $racine = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-$nonce = isset($_SESSION['nonce']) ? $_SESSION['nonce'] : md5(uniqid(rand(), true));
+$nonce = isset($_SESSION['nonce']) ? $_SESSION['nonce'] : bin2hex(random_bytes(16));
 $_SESSION['nonce'] = $nonce;
 
 /* ---------- Petites aides ---------- */
@@ -296,6 +296,15 @@ if (!$erreur && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])
         } catch (Throwable $e){
           throw new RuntimeException('Base existante invalide : ' . $e->getMessage());
         }
+      }
+      /* « Base vide » ne doit JAMAIS écraser une base qui contient déjà des comptes */
+      if ($mode === 'vide'){
+        $pdo = aurel_mysql_pdo($mysql);
+        $t = $pdo->query("SHOW TABLES LIKE 'entities'")->fetchColumn();
+        $n = $t === false ? 0 : (int)$pdo->query("SELECT COUNT(*) FROM entities WHERE coll='users'")->fetchColumn();
+        if ($n > 0)
+          throw new RuntimeException("La base « {$mysql['base']} » contient déjà une installation Aurel School SIGES ({$n} compte(s)).\n"
+            . "Choisissez « Se connecter à une base existante » pour la conserver, ou indiquez une autre base. Aucune donnée n'a été modifiée.");
       }
     }
 

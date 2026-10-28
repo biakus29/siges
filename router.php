@@ -22,8 +22,16 @@ if (preg_match('#(^|/)api(/|$)#', $uri) || $uri === '/api'){
 }
 
 /* Fichiers et dossiers sensibles — jamais servis */
-if (preg_match('#^/(data|seed|src|tests)(/|$)#', $uri)
-  || preg_match('#/(config\.php|router\.php|\.htaccess)$#', $uri)){
+/* Insensible à la casse (Windows ne distingue pas DATA de data), tout
+   élément caché (.git, .env, .htaccess…) refusé, et seuls les fichiers de
+   l'interface sont servis : aucune donnée, source, sauvegarde ni script. */
+$segments = explode('/', trim(str_replace('\\', '/', $uri), '/'));
+$cache = false;
+foreach ($segments as $sg){ if ($sg !== '' && $sg[0] === '.') $cache = true; }
+if ($cache
+  || preg_match('#^/(data|seed|src|tests|docs|scripts|node_modules|dist|api)(/|$)#i', $uri)
+  || (preg_match('#\.(php|json|sql|log|md|lock|zip|bat|sh|cmd|mjs|cjs|txt|ini|db|bak|old|tmp|docx|pdf)$#i', $uri)
+      && !preg_match('#^/install\.php$#i', $uri))){
   http_response_code(403);
   exit('Accès interdit.');
 }
